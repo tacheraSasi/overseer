@@ -1,0 +1,97 @@
+// overseer_service.vint
+// Service file generation and installation for the overseer process manager.
+// Generates systemd unit files and installs them as systemd user services.
+
+package overseer_service {
+
+    // Generate the content of a systemd .service unit file.
+    let generateServiceFile = func(name, command, homeDir) {
+        let path = import("path")
+        let localBin = path.join(homeDir, ".local", "bin")
+        let pathEnv  = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:" + localBin
+
+        let lines = [
+            "[Unit]",
+            "Description=Overseer managed service: " + name,
+            "After=network.target",
+            "",
+            "[Service]",
+            "Type=simple",
+            "ExecStart=" + command,
+            "WorkingDirectory=" + homeDir,
+            "Environment=PATH=" + pathEnv,
+            "Restart=on-failure",
+            "RestartSec=5",
+            "StartLimitIntervalSec=60",
+            "StartLimitBurst=3",
+            "StandardOutput=journal",
+            "StandardError=journal",
+            "SyslogIdentifier=" + name,
+            "",
+            "[Install]",
+            "WantedBy=default.target",
+            ""
+        ]
+
+        let content = ""
+        for line in lines {
+            content = content + line + "\n"
+        }
+        return content
+    }
+
+    // Install a service: write the unit file and register it with systemd.
+    let installService = func(name, command, config) {
+        let os    = import("os")
+        let shell = import("shell")
+
+        let homeDir = os.homedir()
+
+        config.ensureDirs()
+
+        let serviceContent  = generateServiceFile(name, command, homeDir)
+        let serviceFilePath = config.getServiceFilePath(name)
+        let systemdFilePath = config.getSystemdFilePath(name)
+
+        // Write to overseer's own services directory
+        os.writeFile(serviceFilePath, serviceContent)
+
+        // Copy to the systemd user directory
+        os.copy(serviceFilePath, systemdFilePath)
+
+        // Reload systemd so it sees the new unit
+        shell.run("systemctl --user daemon-reload 2>&1 || true")
+
+        // Enable the service to start on login
+        shell.run("systemctl --user enable " + name + " 2>&1 || true")
+
+        return {"ok": true, "message": "Service installed successfully."}
+    }
+
+    // Remove a service's files from overseer and systemd directories.
+    let removeServiceFiles = func(name, config) {
+        let os = import("os")
+
+        let systemdFilePath = config.getSystemdFilePath(name)
+        let serviceFilePath = config.getServiceFilePath(name)
+
+        if (os.fileExists(systemdFilePath)) {
+            os.remove(systemdFilePath)
+        }
+
+        if (os.fileExists(serviceFilePath)) {
+            os.remove(serviceFilePath)
+        }
+    }
+
+    // Read the service file content for inspection.
+    let readServiceFile = func(name, config) {
+        let os              = import("os")
+        let serviceFilePath = config.getServiceFilePath(name)
+
+        if (os.fileExists(serviceFilePath)) {
+            return os.readFile(serviceFilePath)
+        }
+        return null
+    }
+}
