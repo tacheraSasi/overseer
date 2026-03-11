@@ -73,11 +73,7 @@ rm overseer.tar.gz
 ```
 
 ### Windows
-
-1. Download the latest `.zip` for your architecture from [Releases](https://github.com/tacheraSasi/overseer/releases/latest)
-2. Extract the `.exe` file
-3. Move it to a directory on your `PATH` (e.g., `C:\Program Files\overseer\`)
-
+Not supported.
 ### Verify
 
 ```sh
