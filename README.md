@@ -38,7 +38,6 @@ Under the hood, overseer generates the service file, installs it as a **systemd 
 
 - A Linux system with **systemd** installed
 - A user session with systemd support (standard on modern Linux distros)
-- VintLang interpreter (`vint`)
 
 ### Enabling Services at Boot
 
@@ -52,11 +51,37 @@ loginctl enable-linger $USER
 
 ## Installation
 
-Overseer is a multi-file VintLang project located in `examples/overseer/`. Run it directly with `vint`:
+Download the latest release for your platform from [GitHub Releases](https://github.com/tacheraSasi/overseer/releases/latest) and install it globally.
+
+### Linux / macOS
 
 ```sh
-cd examples/overseer
-overseer help
+# Determine platform (linux or darwin) and architecture (amd64 or arm64)
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64) ARCH="amd64" ;;
+  aarch64|arm64) ARCH="arm64" ;;
+esac
+
+# Download and install
+curl -sL "https://github.com/tacheraSasi/overseer/releases/latest/download/overseer-${OS}-${ARCH}.tar.gz" -o overseer.tar.gz
+tar xzf overseer.tar.gz
+sudo mv "overseer-${OS}-${ARCH}" /usr/local/bin/overseer
+sudo chmod +x /usr/local/bin/overseer
+rm overseer.tar.gz
+```
+
+### Windows
+
+1. Download the latest `.zip` for your architecture from [Releases](https://github.com/tacheraSasi/overseer/releases/latest)
+2. Extract the `.exe` file
+3. Move it to a directory on your `PATH` (e.g., `C:\Program Files\overseer\`)
+
+### Verify
+
+```sh
+overseer --version
 ```
 
 ---
@@ -336,12 +361,4 @@ overseer info
 
 # Remove it
 overseer remove api
-```
-
-### Running From Any Directory
-
-Thanks to VintLang's script-relative import resolution, you can also run overseer from any directory by providing the full path:
-
-```sh
-vint /path/to/examples/overseer/main.vint list
 ```
