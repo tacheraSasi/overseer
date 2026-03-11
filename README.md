@@ -25,9 +25,9 @@ WantedBy=multi-user.target
 You use overseer:
 
 ```sh
-vint main.vint add api "./api --port 8080"
-vint main.vint start api
-vint main.vint logs api
+overseer add api "./api --port 8080"
+overseer start api
+overseer logs api
 ```
 
 Under the hood, overseer generates the service file, installs it as a **systemd user unit**, and uses `systemctl --user` to manage it.
@@ -56,7 +56,7 @@ Overseer is a multi-file VintLang project located in `examples/overseer/`. Run i
 
 ```sh
 cd examples/overseer
-vint main.vint help
+overseer help
 ```
 
 ---
@@ -68,9 +68,9 @@ vint main.vint help
 Add and install a new managed service.
 
 ```sh
-vint main.vint add api "./api --port 8080"
-vint main.vint add worker "python3 worker.py --queue default"
-vint main.vint add nginx "nginx -g 'daemon off;'"
+overseer add api "./api --port 8080"
+overseer add worker "python3 worker.py --queue default"
+overseer add nginx "nginx -g 'daemon off;'"
 ```
 
 This:
@@ -88,7 +88,7 @@ This:
 Start a managed service.
 
 ```sh
-vint main.vint start api
+overseer start api
 ```
 
 ---
@@ -98,7 +98,7 @@ vint main.vint start api
 Stop a running service.
 
 ```sh
-vint main.vint stop api
+overseer stop api
 ```
 
 ---
@@ -108,7 +108,7 @@ vint main.vint stop api
 Restart a service (stop then start).
 
 ```sh
-vint main.vint restart api
+overseer restart api
 ```
 
 ---
@@ -118,7 +118,7 @@ vint main.vint restart api
 Show the current status and recent events for a service.
 
 ```sh
-vint main.vint status api
+overseer status api
 ```
 
 ---
@@ -128,7 +128,7 @@ vint main.vint status api
 View the last 50 log lines for a service using `journalctl`.
 
 ```sh
-vint main.vint logs api
+overseer logs api
 ```
 
 ---
@@ -138,7 +138,7 @@ vint main.vint logs api
 List all services managed by overseer, along with their current systemd status.
 
 ```sh
-vint main.vint list
+overseer list
 ```
 
 ---
@@ -148,7 +148,7 @@ vint main.vint list
 Enable a service to start automatically at login.
 
 ```sh
-vint main.vint enable api
+overseer enable api
 ```
 
 ---
@@ -158,7 +158,7 @@ vint main.vint enable api
 Disable a service from starting at login.
 
 ```sh
-vint main.vint disable api
+overseer disable api
 ```
 
 ---
@@ -168,7 +168,7 @@ vint main.vint disable api
 Stop, disable, and completely remove a service from overseer and systemd.
 
 ```sh
-vint main.vint remove api
+overseer remove api
 ```
 
 This:
@@ -186,7 +186,7 @@ This:
 Show overseer configuration paths and system info.
 
 ```sh
-vint main.vint info
+overseer info
 ```
 
 ---
@@ -196,7 +196,7 @@ vint main.vint info
 Show the overseer version.
 
 ```sh
-vint main.vint --version
+overseer --version
 ```
 
 ---
@@ -310,32 +310,32 @@ The service registry is stored as JSON at `~/.config/overseer/registry.json`:
 cd examples/overseer
 
 # Add a service
-vint main.vint add api "./api --port 8080"
+overseer add api "./api --port 8080"
 
 # Start it
-vint main.vint start api
+overseer start api
 
 # Check it's running
-vint main.vint status api
+overseer status api
 
 # View logs
-vint main.vint logs api
+overseer logs api
 
 # Restart after a code update
-vint main.vint restart api
+overseer restart api
 
 # Control auto-start
-vint main.vint enable api
-vint main.vint disable api
+overseer enable api
+overseer disable api
 
 # List all services
-vint main.vint list
+overseer list
 
 # Show config paths
-vint main.vint info
+overseer info
 
 # Remove it
-vint main.vint remove api
+overseer remove api
 ```
 
 ### Running From Any Directory

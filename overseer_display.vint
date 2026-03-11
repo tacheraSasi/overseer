@@ -118,7 +118,7 @@ package overseer_display {
         header()
 
         term.println("Usage:", COLOR_HEAD)
-        term.println("  vint main.vint <command> [arguments]", COLOR_CODE)
+        term.println("  overseer <command> [arguments]", COLOR_CODE)
         term.println("")
 
         let helpRows = [
@@ -143,11 +143,11 @@ package overseer_display {
 
         term.println("")
         term.println("Examples:", COLOR_HEAD)
-        term.println("  vint main.vint add api \"./api --port 8080\"", COLOR_CODE)
-        term.println("  vint main.vint start api", COLOR_CODE)
-        term.println("  vint main.vint logs api", COLOR_CODE)
-        term.println("  vint main.vint list", COLOR_CODE)
-        term.println("  vint main.vint remove api", COLOR_CODE)
+        term.println("  overseer add api \"./api --port 8080\"", COLOR_CODE)
+        term.println("  overseer start api", COLOR_CODE)
+        term.println("  overseer logs api", COLOR_CODE)
+        term.println("  overseer list", COLOR_CODE)
+        term.println("  overseer remove api", COLOR_CODE)
         term.println("")
 
         term.println("Notes:", COLOR_HEAD)
