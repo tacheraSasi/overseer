@@ -1,4 +1,3 @@
-// overseer_systemctl.vint
 // Service control backend for the overseer process manager.
 // Dispatches to systemctl (Linux) or launchctl (macOS) based on detected platform.
 

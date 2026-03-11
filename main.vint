@@ -1,4 +1,3 @@
-// overseer/main.vint
 // Overseer - A developer-friendly CLI process manager.
 // Uses systemd on Linux and launchd on macOS.
 //

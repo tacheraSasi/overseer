@@ -1,4 +1,3 @@
-// overseer_display.vint
 // Display and output utilities for the overseer process manager.
 // Provides styled terminal output using the term module.
 

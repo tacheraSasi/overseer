@@ -1,4 +1,3 @@
-// overseer_config.vint
 // Configuration and service registry management for the overseer process manager.
 // Stores the registry of managed services as JSON in ~/.config/overseer/registry.json
 // Supports Linux (systemd) and macOS (launchd) backends.
