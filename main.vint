@@ -42,6 +42,7 @@ import overseer_service
 import overseer_systemctl
 import overseer_health
 import overseer_env
+import os
 
 // ── Guards ───────────────────────────────────────────────────────────────
 
@@ -49,7 +50,6 @@ let requireBackend = func() {
     let check = overseer_systemctl.checkBackend()
     if (!check["available"]) {
         overseer_display.printError(overseer_systemctl.backendName() + " not available: " + check["message"])
-        let os = import("os")
         os.exit(1)
     }
 }
@@ -58,7 +58,6 @@ let requireService = func(name) {
     if (!overseer_config.isRegistered(name)) {
         overseer_display.printError("Service '" + name + "' is not managed by overseer.")
         overseer_display.printInfo("Run: overseer list")
-        let os = import("os")
         os.exit(1)
     }
 }
@@ -66,7 +65,6 @@ let requireService = func(name) {
 let requireName = func(args, usage) {
     if (len(args) < 2) {
         overseer_display.printError("Usage: overseer " + usage)
-        let os = import("os")
         os.exit(1)
     }
     return args[1]
@@ -76,7 +74,6 @@ let validateName = func(name) {
     if (!overseer_config.isValidName(name)) {
         overseer_display.printError("Invalid service name: '" + name + "'")
         overseer_display.printInfo("Names must start with a letter or digit and contain only [a-zA-Z0-9_-]")
-        let os = import("os")
         os.exit(1)
     }
 }
@@ -98,7 +95,6 @@ let cmdAdd = func(args) {
     if (len(args) < 2) {
         overseer_display.printError("Usage: overseer add <name> <command>")
         overseer_display.printInfo("Example: overseer add api \"./api --port 8080\"")
-        let os = import("os")
         os.exit(1)
     }
 
@@ -110,7 +106,6 @@ let cmdAdd = func(args) {
     if (overseer_config.isRegistered(name)) {
         overseer_display.printWarn("Service '" + name + "' is already managed by overseer.")
         overseer_display.printInfo("Remove it first: overseer remove " + name)
-        let os = import("os")
         os.exit(1)
     }
 
@@ -119,7 +114,6 @@ let cmdAdd = func(args) {
     let result = overseer_service.installService(name, command, overseer_config)
     if (!result["ok"]) {
         overseer_display.printError("Failed to install service: " + result["message"])
-        let os = import("os")
         os.exit(1)
     }
 
@@ -364,7 +358,6 @@ let cmdHealth = func(name) {
 let cmdEnv = func(args) {
     if (len(args) < 2) {
         overseer_display.printError("Usage: overseer env <list|set|rm> <name> [KEY] [VALUE]")
-        let os = import("os")
         os.exit(1)
     }
 
@@ -383,7 +376,7 @@ let cmdEnv = func(args) {
         case "set" {
             if (len(args) < 4) {
                 overseer_display.printError("Usage: overseer env set <name> <KEY> <VALUE>")
-                let os = import("os")
+    
                 os.exit(1)
             }
             let key   = args[2]
@@ -395,7 +388,7 @@ let cmdEnv = func(args) {
         case "rm" {
             if (len(args) < 3) {
                 overseer_display.printError("Usage: overseer env rm <name> <KEY>")
-                let os = import("os")
+    
                 os.exit(1)
             }
             let key = args[2]
@@ -419,7 +412,6 @@ let cmdEnv = func(args) {
 let cmdTag = func(args) {
     if (len(args) < 2) {
         overseer_display.printError("Usage: overseer tag <add|rm|find> <name|tag> [tag]")
-        let os = import("os")
         os.exit(1)
     }
 
@@ -429,7 +421,7 @@ let cmdTag = func(args) {
         case "add" {
             if (len(args) < 3) {
                 overseer_display.printError("Usage: overseer tag add <name> <tag>")
-                let os = import("os")
+    
                 os.exit(1)
             }
             let name = args[1]
@@ -455,7 +447,7 @@ let cmdTag = func(args) {
         case "rm" {
             if (len(args) < 3) {
                 overseer_display.printError("Usage: overseer tag rm <name> <tag>")
-                let os = import("os")
+    
                 os.exit(1)
             }
             let name = args[1]
@@ -501,7 +493,6 @@ let cmdTag = func(args) {
 let cmdDescribe = func(args) {
     if (len(args) < 1) {
         overseer_display.printError("Usage: overseer describe <name> [description]")
-        let os = import("os")
         os.exit(1)
     }
 
@@ -550,7 +541,6 @@ let cmdExport = func(args) {
 let cmdImport = func(args) {
     if (len(args) < 1) {
         overseer_display.printError("Usage: overseer import <file>")
-        let os = import("os")
         os.exit(1)
     }
 
@@ -577,8 +567,7 @@ let cmdImport = func(args) {
 let args = cli.getArgs()
 
 if (len(args) == 0) {
-    overseer_display.showHelp()
-    let os = import("os")
+    overseer_display.showHelp(
     os.exit(0)
 }
 
@@ -717,7 +706,6 @@ switch (command) {
         overseer_display.printError("Unknown command: '" + command + "'")
         overseer_display.println("")
         overseer_display.showHelp()
-        let os = import("os")
         os.exit(1)
     }
 }
