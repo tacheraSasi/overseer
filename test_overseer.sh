@@ -4,9 +4,51 @@ set -e
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}--- Starting Overseer Test Suite ---${NC}"
+OVERSEER_UID=1000
+
+# Ensure we are running as the 'overseer' user for the rest of the script
+if [ "$(id -u)" -eq 0 ]; then
+    echo -e "${BLUE}Root setup: Initializing environment...${NC}"
+    
+    # 1. Wait for system bus
+    echo -e "${BLUE}Waiting for system bus...${NC}"
+    timeout 15s bash -c "until [ -S /run/dbus/system_bus_socket ]; do sleep 1; done" || { echo -e "${RED}System bus timeout${NC}"; exit 1; }
+
+    # 2. Force create the user runtime directory
+    echo -e "${BLUE}Setting up /run/user/$OVERSEER_UID...${NC}"
+    mkdir -p "/run/user/$OVERSEER_UID"
+    chown overseer:overseer "/run/user/$OVERSEER_UID"
+    chmod 700 "/run/user/$OVERSEER_UID"
+
+    # 3. Start the user manager service
+    echo -e "${BLUE}Starting systemd user manager for UID $OVERSEER_UID...${NC}"
+    systemctl start "user@$OVERSEER_UID.service" || echo -e "${RED}Warning: Could not start user@$OVERSEER_UID.service directly, continuing...${NC}"
+
+    # 4. Enable lingering as a backup
+    loginctl enable-linger overseer || true
+
+    echo -e "${BLUE}Restarting script as 'overseer' user...${NC}"
+    export XDG_RUNTIME_DIR="/run/user/$OVERSEER_UID"
+    exec sudo -u overseer -E "$0" "$@"
+fi
+
+# Now we are the 'overseer' user
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+
+# Check if user manager is reachable
+echo -e "${BLUE}Checking systemd user manager connectivity...${NC}"
+if ! systemctl --user status > /dev/null 2>&1; then
+    echo -e "${RED}Error: systemctl --user is not reachable.${NC}"
+    echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
+    ls -la "$XDG_RUNTIME_DIR"
+    exit 1
+fi
+
+echo -e "${BLUE}--- Starting Overseer Test Suite (User: $(whoami)) ---${NC}"
 
 # 1. Check version
 echo -e "\n${GREEN}[1/10] Checking version...${NC}"
@@ -26,7 +68,7 @@ overseer start hello-task
 
 # 5. Check status
 echo -e "\n${GREEN}[5/10] Checking status of 'hello-task'...${NC}"
-sleep 2 # Give it a moment to start
+sleep 3
 overseer status hello-task
 
 # 6. Check logs

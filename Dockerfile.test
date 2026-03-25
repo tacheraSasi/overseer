@@ -1,15 +1,14 @@
-FROM ubuntu:22.04
+FROM jrei/systemd-ubuntu:22.04
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies: systemd, dbus, curl, sudo, etc.
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    systemd \
-    dbus-user-session \
     curl \
     tar \
     sudo \
+    dbus-user-session \
     kmod \
     iproute2 \
     procps \
@@ -18,12 +17,6 @@ RUN apt-get update && apt-get install -y \
 # Create a non-root user
 RUN useradd -m -s /bin/bash overseer && \
     echo "overseer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Set up environment for systemd --user
-ENV XDG_RUNTIME_DIR=/run/user/1000
-RUN mkdir -p /run/user/1000 && \
-    chown overseer:overseer /run/user/1000 && \
-    chmod 700 /run/user/1000
 
 # Install overseer from latest release
 RUN OS=linux && \
@@ -38,18 +31,10 @@ RUN OS=linux && \
     chmod +x /usr/local/bin/overseer && \
     rm overseer.tar.gz
 
-USER overseer
-WORKDIR /home/overseer
-
-# Copy the test script and make it executable
+# Copy the test script
 COPY test_overseer.sh /home/overseer/test_overseer.sh
-RUN sudo chmod +x /home/overseer/test_overseer.sh
+RUN chmod +x /home/overseer/test_overseer.sh && chown overseer:overseer /home/overseer/test_overseer.sh
 
-# Ensure dbus is available for the user
-RUN mkdir -p /home/overseer/.config/systemd/user
-
-# Use a simpler entrypoint that can run systemd if needed, 
-# but for testing, we might just want to stay alive.
-# However, overseer NEEDS systemd running.
-# Let's try the standard systemd entrypoint for Ubuntu.
-CMD ["/lib/systemd/systemd", "--log-level=info", "--unit=multi-user.target"]
+# IMPORTANT: Do NOT set USER overseer here. 
+# Systemd (PID 1) MUST run as root.
+# We will run the tests as the overseer user inside the script.
