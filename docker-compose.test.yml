@@ -1,0 +1,16 @@
+services:
+  overseer-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: overseer-test
+    privileged: true
+    cgroupns: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    environment:
+      - XDG_RUNTIME_DIR=/run/user/1000
+    tmpfs:
+      - /run
+      - /run/lock
+    restart: always
